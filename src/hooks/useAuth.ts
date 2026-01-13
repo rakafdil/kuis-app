@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface User {
   id: number;
@@ -39,6 +40,8 @@ function useAuth() {
           },
         ];
   });
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -113,6 +116,7 @@ function useAuth() {
           email: loggedInUser.email,
         })
       );
+      navigate("/quiz");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error");
     } finally {
