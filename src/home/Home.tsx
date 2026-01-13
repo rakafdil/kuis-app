@@ -83,8 +83,12 @@ const Home = () => {
 
   const handleStartQuiz = () => {
     if (!canStartQuiz) return;
-    localStorage.setItem("quiz-options", JSON.stringify({ options }));
-    navigate("/quiz");
+    options.timer = String(Number(options.timer) * 60);
+    navigate("/quiz", {
+      state: {
+        options,
+      },
+    });
   };
 
   return (
@@ -152,11 +156,14 @@ const Home = () => {
         />
 
         <button
-          onClick={handleStartQuiz}
+          onClick={() => {
+            localStorage.removeItem("quiz-data");
+            handleStartQuiz();
+          }}
           disabled={!canStartQuiz || isLoading}
           className="w-full mt-4 py-3 px-6 bg-cyan-600 text-white font-semibold rounded-lg hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 transition-all disabled:bg-gray-300 disabled:cursor-not-allowed disabled:hover:bg-gray-300"
         >
-          {isLoading ? "Loading..." : "Start Quiz"}
+          {isLoading ? "Loading..." : "New Quiz"}
         </button>
         <button
           onClick={handleStartQuiz}
