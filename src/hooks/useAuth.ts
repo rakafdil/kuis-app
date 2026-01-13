@@ -116,7 +116,7 @@ function useAuth() {
           email: loggedInUser.email,
         })
       );
-      navigate("/quiz");
+      navigate("/");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error");
     } finally {

@@ -29,12 +29,10 @@ function Auth() {
         <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold">
           Welcome To Quiz App
         </h1>
-        <p className="mt-4 text-gray-600 ">
-          Test your knowledge with our interactive quiz platform
-        </p>
+        <p className="mt-4 text-gray-200 ">Test your knowledge</p>
       </div>
 
-      <div className="flex flex-col bg-white shadow-lg rounded-lg lg:rounded-none p-5 lg:p-8 lg:px-36 lg:pt-20   gap-5 w-full lg:w-1/2 max-w-md lg:max-w-none h-screen">
+      <div className="flex flex-col bg-white shadow-lg rounded-lg lg:rounded-none p-5 lg:p-8 lg:px-36 lg:pt-20   gap-5 w-full lg:w-1/2 max-w-md lg:max-w-none h-screen text-gray-900">
         <motion.h2
           key={isLogin ? "login-title" : "register-title"}
           initial={{ opacity: 0 }}

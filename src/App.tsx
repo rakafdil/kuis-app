@@ -6,15 +6,24 @@ import ProtectedRoute from "./utils/ProtectedRoute";
 
 function App() {
   return (
-    <div className="min-h-screen bg-gray-100 text-gray-900">
-      <Routes>
-        <Route path="/auth" element={<Auth />} />
-        <Route element={<ProtectedRoute />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/quiz" element={<Quiz />} />
-        </Route>
-        <Route path="*" element={<h1>Halaman tidak ditemukan</h1>} />
-      </Routes>
+    <div className="mx-auto relative min-h-screen text-white font-medium max-w-480">
+      <div
+        className="absolute inset-0 bg-cover bg-center z-1 opacity-5"
+        style={{ backgroundImage: "url('/abst_background.jpg')" }}
+      />
+
+      <div className="absolute inset-0 bg-linear-to-tr from-cyan-950 to-cyan-800" />
+
+      <div className="relative z-10 min-h-screen">
+        <Routes>
+          <Route path="/auth" element={<Auth />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/quiz" element={<Quiz />} />
+          </Route>
+          <Route path="*" element={<h1>Halaman tidak ditemukan</h1>} />
+        </Routes>
+      </div>
     </div>
   );
 }
