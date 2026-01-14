@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const BASE_API = "https://opentdb.com/api.php";
@@ -49,18 +49,31 @@ const decodeHtml = (text: string) => {
 };
 
 function useQuiz() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const options = location.state?.options;
+
+  const [timer, setTimer] = useState<number>(() => {
+    const cached = localStorage.getItem("quiz-session");
+    if (!cached) return options?.timer ?? 60;
+
+    const parsed = JSON.parse(cached);
+    return parsed.timer ?? options?.timer ?? 60;
+  });
+
+  const timerRef = useRef<number | null>(null);
+
   const [quizData, setQuizData] = useState<QuizDisplay[]>(() => {
-    const cached = localStorage.getItem("quiz-data");
-    return cached ? JSON.parse(cached) : [];
+    const cached = localStorage.getItem("quiz-session");
+    if (!cached) return [];
+
+    const parsed = JSON.parse(cached);
+    return parsed.quiz ?? [];
   });
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const location = useLocation();
-  const navigate = useNavigate();
-
-  const options = location.state?.options;
+  const [isDone, setIsDone] = useState(false);
 
   const fetchQuiz = useCallback(async () => {
     if (!options) return;
@@ -128,7 +141,13 @@ function useQuiz() {
 
       setQuizData(cleanedData);
 
-      localStorage.setItem("quiz-data", JSON.stringify(cleanedData));
+      localStorage.setItem(
+        "quiz-session",
+        JSON.stringify({
+          quiz: cleanedData,
+          timer: timer,
+        })
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error");
     } finally {
@@ -138,8 +157,15 @@ function useQuiz() {
 
   useEffect(() => {
     if (quizData.length === 0) return;
-    localStorage.setItem("quiz-data", JSON.stringify(quizData));
-  }, [quizData]);
+
+    localStorage.setItem(
+      "quiz-session",
+      JSON.stringify({
+        quiz: quizData,
+        timer,
+      })
+    );
+  }, [quizData, timer]);
 
   useEffect(() => {
     if (quizData.length === 0) {
@@ -148,9 +174,9 @@ function useQuiz() {
   }, [fetchQuiz, quizData.length]);
 
   useEffect(() => {
-    const cached = localStorage.getItem("quiz-data");
+    const cached = localStorage.getItem("quiz-session");
     if (cached) {
-      const parsed = JSON.parse(cached);
+      const parsed = JSON.parse(cached).quiz;
       setQuizData(parsed);
     } else {
       fetchQuiz();
@@ -163,12 +189,47 @@ function useQuiz() {
     }
   }, [navigate, options]);
 
+  const stopTimer = useCallback(() => {
+    if (timerRef.current !== null) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+  }, []);
+
+  const startTimer = useCallback(() => {
+    if (timerRef.current !== null) return;
+
+    timerRef.current = window.setInterval(() => {
+      setTimer((prev) => {
+        if (prev <= 1) {
+          stopTimer();
+          setIsDone(true);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  }, [stopTimer]);
+
+  useEffect(() => {
+    if (!isDone) {
+      startTimer();
+    }
+    return () => {
+      stopTimer();
+    };
+  }, [startTimer, stopTimer, isDone]);
+
   return {
     quizData,
+    setQuizData,
+    startTimer,
+    stopTimer,
+    setIsDone,
+    timer,
     isLoading,
     error,
-    time: options?.timer,
-    setQuizData,
+    isDone,
   };
 }
 

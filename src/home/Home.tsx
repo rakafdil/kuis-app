@@ -90,13 +90,26 @@ const Home = () => {
       },
     });
   };
+  const hasQuizSession = Boolean(localStorage.getItem("quiz-session"));
 
   return (
     <div className="flex justify-center items-center px-4 lg:px-10 min-h-screen w-full py-8">
       <div className="text-black flex flex-col bg-white/90 backdrop-blur-2xl rounded-xl shadow-lg w-full max-w-2xl p-6 lg:p-8 gap-6">
-        <h1 className="text-2xl lg:text-3xl font-bold text-center pb-4">
-          QUIZ APP
-        </h1>
+        <div className="flex gap-5 justify-center items-center">
+          <h1 className="text-2xl lg:text-3xl font-bold text-center pb-4">
+            QUIZ APP
+          </h1>
+          <button
+            className="text-white bg-red-500 p-2 py-1"
+            onClick={() => {
+              localStorage.removeItem("user");
+              localStorage.removeItem("api_token");
+              navigate("/auth");
+            }}
+          >
+            Logout
+          </button>
+        </div>
 
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
@@ -157,7 +170,7 @@ const Home = () => {
 
         <button
           onClick={() => {
-            localStorage.removeItem("quiz-data");
+            localStorage.removeItem("quiz-session");
             handleStartQuiz();
           }}
           disabled={!canStartQuiz || isLoading}
@@ -167,7 +180,7 @@ const Home = () => {
         </button>
         <button
           onClick={handleStartQuiz}
-          disabled={!canStartQuiz || isLoading}
+          disabled={!canStartQuiz || isLoading || !hasQuizSession}
           className="w-full mt-4 py-3 px-6 bg-cyan-600 text-white font-semibold rounded-lg hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 transition-all disabled:bg-gray-300 disabled:cursor-not-allowed disabled:hover:bg-gray-300"
         >
           {isLoading ? "Loading..." : "Continue Quiz"}
