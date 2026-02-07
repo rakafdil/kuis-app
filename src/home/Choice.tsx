@@ -1,44 +1,71 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 
-type ChoiceProps = {
+interface ChoiceProps<T = string> {
   options: string[];
-  currentValue: string;
-  changeValue: (value: any) => void;
+  currentValue: T;
+  changeValue: (value: T) => void;
   title: string;
-};
+  icon?: React.ReactNode;
+}
 
-const Choice: React.FC<ChoiceProps> = ({
+const Choice = <T extends string>({
   options,
   currentValue,
   changeValue,
   title,
-}) => {
+  icon,
+}: ChoiceProps<T>) => {
   return (
-    <div className="flex flex-col gap-2 justify-center items-center">
-      <label className="font-medium">Select {title}</label>
+    <div className="flex flex-col gap-3">
+      <label className="font-semibold text-gray-700 flex items-center gap-2">
+        {icon}
+        <span>{title}</span>
+      </label>
 
-      <div className="flex gap-4 flex-wrap justify-center">
-        {options.map((o) => {
-          const value = o.toLowerCase();
+      <div className="flex gap-3 flex-wrap justify-start">
+        {options.map((option) => {
+          const value = option.toLowerCase() as T;
           const isActive = value === currentValue.toLowerCase();
+
           return (
             <button
-              key={o}
+              key={option}
               type="button"
               onClick={() => changeValue(value)}
-              className={`flex items-center gap-2 border py-3 px-5 rounded-xl transition-all duration-200 cursor-pointer ${
+              className={`group relative flex items-center gap-3 border-2 py-3 px-6 rounded-xl transition-all duration-200 cursor-pointer min-w-[120px] justify-center ${
                 isActive
-                  ? "bg-cyan-100 border-cyan-500"
-                  : "bg-white border-gray-400 hover:bg-gray-100"
+                  ? "bg-linear-to-r from-cyan-600 to-blue-600 border-cyan-600 text-white shadow-lg scale-105"
+                  : "bg-white border-gray-300 text-gray-700 hover:border-cyan-500 hover:bg-cyan-50 hover:shadow-md"
               }`}
+              aria-pressed={isActive}
+              aria-label={`Select ${option}`}
             >
+              {/* Radio Indicator */}
               <div
-                className={`rounded-full w-4 h-4 border-2 transition-all ${
-                  isActive ? "bg-cyan-500 border-cyan-500" : "border-gray-400"
+                className={`rounded-full w-5 h-5 border-2 transition-all flex items-center justify-center ${
+                  isActive
+                    ? "bg-white border-white"
+                    : "border-gray-400 group-hover:border-cyan-500"
                 }`}
-              />
-              <span className={isActive ? "font-semibold" : ""}>{o}</span>
+              >
+                {isActive && (
+                  <div className="w-2.5 h-2.5 rounded-full bg-cyan-600" />
+                )}
+              </div>
+
+              {/* Label */}
+              <span
+                className={`font-medium transition-all ${
+                  isActive ? "font-semibold" : ""
+                }`}
+              >
+                {option}
+              </span>
+
+              {/* Active Indicator */}
+              {isActive && (
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
+              )}
             </button>
           );
         })}
